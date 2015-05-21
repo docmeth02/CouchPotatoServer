@@ -13,12 +13,12 @@ log = CPLog(__name__)
 class Base(TorrentProvider):
 
     urls = {
-        'test': 'http://torrentshack.eu/',
-        'login': 'http://torrentshack.eu/login.php',
-        'login_check': 'http://torrentshack.eu/inbox.php',
-        'detail': 'http://torrentshack.eu/torrent/%s',
-        'search': 'http://torrentshack.eu/torrents.php?action=advanced&searchstr=%s&scene=%s&filter_cat[%d]=1',
-        'download': 'http://torrentshack.eu/%s',
+        'test': 'https://torrentshack.me/',
+        'login': 'https://torrentshack.me/login.php',
+        'login_check': 'https://torrentshack.me/inbox.php',
+        'detail': 'https://torrentshack.me/torrent/%s',
+        'search': 'https://torrentshack.me/torrents.php?action=advanced&searchstr=%s&scene=%s&filter_cat[%d]=1',
+        'download': 'https://torrentshack.me/%s',
     }
 
     http_time_between_calls = 1  # Seconds
@@ -82,7 +82,7 @@ config = [{
             'tab': 'searcher',
             'list': 'torrent_providers',
             'name': 'TorrentShack',
-            'description': '<a href="http://torrentshack.eu/">TorrentShack</a>',
+            'description': '<a href="https://torrentshack.me/">TorrentShack</a>',
             'wizard': True,
             'icon': 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAABmElEQVQoFQXBzY2cVRiE0afqvd84CQiAnxWWtyxsS6ThINBYg2Dc7mZBMEjE4mzs6e9WcY5+ePNuVFJJodQAoLo+SaWCy9rcV8cmjah3CI6iYu7oRU30kE5xxELRfamklY3k1NL19sSm7vPzP/ZdNZzKVDaY2sPZJBh9fv5ITrmG2+Vp4e1sPchVqTCQZJnVXi+/L4uuAJGly1+Pw8CprLbi8Om7tbT19/XRqJUk11JP9uHj9ulxhXbvJbI9qJvr5YkGXFG2IBT8tXczt+sfzDZCp3765f3t9tHEHGEDACma77+8o4oATKk+/PfW9YmHruRFjWoVSFsVsGu1YSKq6Oc37+n98unPZSRlY7vsKDqN+92X3yR9+PdXee3iJNKMStqdcZqoTJbUSi5JOkpfRlhSI0mSpEmCFKoU7FqSNOLAk54uGwCStMUCgLrVic62g7oDoFmmdI+P3S0pDe1xvDqb6XrZqbtzShWNoh9fv/XQHaDdM9OqrZi2M7M3UrB2vlkPS1IbdEBk7UiSoD6VlZ6aKWer4aH4f/AvKoHUTjuyAAAAAElFTkSuQmCC',
             'options': [

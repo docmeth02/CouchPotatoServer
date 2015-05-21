@@ -39,8 +39,9 @@ class Plugin(object):
 
     _locks = {}
 
-    user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:24.0) Gecko/20130519 Firefox/24.0'
+    user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:34.0) Gecko/20100101 Firefox/34.0'
     http_last_use = {}
+    http_last_use_queue = {}
     http_time_between_calls = 0
     http_failed_request = {}
     http_failed_disabled = {}
@@ -196,7 +197,7 @@ class Plugin(object):
         headers['Host'] = headers.get('Host', None)
         headers['User-Agent'] = headers.get('User-Agent', self.user_agent)
         headers['Accept-encoding'] = headers.get('Accept-encoding', 'gzip')
-        headers['Connection'] = headers.get('Connection', 'close')
+        headers['Connection'] = headers.get('Connection', 'keep-alive')
         headers['Cache-Control'] = headers.get('Cache-Control', 'max-age=0')
 
         r = Env.get('http_opener')
@@ -206,14 +207,14 @@ class Plugin(object):
             if self.http_failed_disabled[host] > (time.time() - 900):
                 log.info2('Disabled calls to %s for 15 minutes because so many failed requests.', host)
                 if not show_error:
-                    raise Exception('Disabled calls to %s for 15 minutes because so many failed requests')
+                    raise Exception('Disabled calls to %s for 15 minutes because so many failed requests' % host)
                 else:
                     return ''
             else:
                 del self.http_failed_request[host]
                 del self.http_failed_disabled[host]
 
-        self.wait(host)
+        self.wait(host, url)
         status_code = None
         try:
 
@@ -267,20 +268,34 @@ class Plugin(object):
 
         return data
 
-    def wait(self, host = ''):
+    def wait(self, host = '', url = ''):
         if self.http_time_between_calls == 0:
             return
 
-        now = time.time()
+        try:
+            if host not in self.http_last_use_queue:
+                self.http_last_use_queue[host] = []
 
-        last_use = self.http_last_use.get(host, 0)
-        if last_use > 0:
+            self.http_last_use_queue[host].append(url)
 
-            wait = (last_use - now) + self.http_time_between_calls
+            while True and not self.shuttingDown():
+                wait = (self.http_last_use.get(host, 0) - time.time()) + self.http_time_between_calls
 
-            if wait > 0:
-                log.debug('Waiting for %s, %d seconds', (self.getName(), max(1, wait)))
-                time.sleep(min(wait, 30))
+                if self.http_last_use_queue[host][0] != url:
+                    time.sleep(.1)
+                    continue
+
+                if wait > 0:
+                    log.debug('Waiting for %s, %d seconds', (self.getName(), max(1, wait)))
+                    time.sleep(min(wait, 30))
+                else:
+                    self.http_last_use_queue[host] = self.http_last_use_queue[host][1:]
+                    self.http_last_use[host] = time.time()
+                    break
+        except:
+            log.error('Failed handling waiting call: %s', traceback.format_exc())
+            time.sleep(self.http_time_between_calls)
+
 
     def beforeCall(self, handler):
         self.isRunning('%s.%s' % (self.getName(), handler.__name__))
